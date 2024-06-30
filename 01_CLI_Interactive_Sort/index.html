@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive sort</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color:#45a049;
+        }
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .input-text {
+            padding-bottom: 10px;
+            color:#fe930f;
+        }
+        label {
+            margin-bottom: 10px;
+            font-size: 20px;
+            color:#636563;
+        }
+        textarea {
+          width: 30%;
+          height: 100px;
+          margin-bottom: 10px;
+          margin-top: 10px;
+          font-size: 20px;
+          border-radius: 10px;
+          border-color:#45a049;
+          padding: 10px;
+          color:#636563;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output-container {
+            margin-top: 20px;
+            padding: 10px;
+            width: 30%;
+            border-radius: 10px;
+            border: 1px solid #45a049;
+            color:#636563;
+        }
+      </style>
+</head>
+<body>
+    <h1>Interactive sort</h1>
+    <div class="input-container">
+        <label for="inputData">Enter 10 words and 10 numbers:</label>
+        <textarea id="inputData" rows="10" cols="50"></textarea>
+    </div>
+   
+    
+    <button onclick="sortData()">Choose operation</button>
+    <div 
+        class="output-container"
+        id="outputData">
+        See the results here
+    </div>
+
+    <script>
+        function sortData() {
+            let inputData = document.getElementById('inputData'); 
+            let outputData = document.getElementById('outputData'); 
+            let data = inputData.value.trim(); 
+            
+            if(data === '') { 
+                outputData.innerHTML = '<p class="input-text">Please enter some data</p>';
+                return;
+            }
+
+            let words = data.split(' ').filter(item => isNaN(Number(item))); 
+            let numbers = data.split(' ').filter(item => !isNaN(Number(item))); 
+
+            const operations = prompt(
+                'Select the type of operation:\n' +
+                '1. Sort words alphabetically\n' +
+                '2. Display numbers in ascending order\n' +
+                '3. Display numbers in descending order\n' +
+                '4. Display words in ascending order based on length\n' +
+                '5. Show only unique words\n' +
+                '6. Show only unique values from entire set'
+            );
+
+            if(operations === null) {
+                return;
+            }
+
+            switch(operations.trim()) {
+                case '1': 
+                    outputData.innerHTML = '<p class="output-text">Sorted words alphabetically:</p><p>' + words.sort().join(', ') + '</p>';
+                    break;
+                case '2':
+                    outputData.innerHTML = `<p class="output-text">Display numbers in ascending order: ${numbers.sort((a, b) => a - b).join(', ')}</p>`;
+                    break;
+                case '3':
+                    outputData.innerHTML = `<p class="output-text">Display numbers in descending order: ${numbers.sort((a, b) => b - a).join(', ')}</p>`;
+                    break;
+                case '4':
+                    outputData.innerHTML = `<p class="output-text">Display words in ascending order based on length: ${words.sort((a, b) => a.length - b.length).join(', ')}</p>`;
+                    break;
+                case '5':
+                    outputData.innerHTML = `<p>Show only unique words: ${[...new Set(words)].join(', ')}</p>`;
+                    break;
+                case '6':
+                    outputData.innerHTML = `<p class="output-text">Show only unique values from entirre set: ${[...new Set([...words, ...numbers])].join(', ')}</p>`;
+                    break;    
+                default:
+                    outputData.innerHTML = '<p>Invalid operation</p>';    
+            }
+
+            
+        }
+    </script>
+</body>
+</html>
