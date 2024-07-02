@@ -81,7 +81,7 @@ function searchUserByName() {
     } else {
       console.log('Exiting search process.');
     }
-  })
+  });
 }
 
 function run() {
