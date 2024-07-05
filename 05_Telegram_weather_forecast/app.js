@@ -60,6 +60,10 @@ bot.on('message', async (msg) => {
 bot.onText(/Show weather every (3|6) hours/, async (msg, match) => {
     const intervalHours = parseInt(match[1]);
     const chatId = msg.chat.id;
+    if (!currentCity) {
+        bot.sendMessage(chatId, 'Please enter a city name first.');
+        return;
+    }
     bot.sendMessage(chatId, `Fetching weather every ${intervalHours} hours for ${currentCity}...`);
 
     try {
@@ -72,48 +76,37 @@ bot.onText(/Show weather every (3|6) hours/, async (msg, match) => {
         });
 
         const forecasts = weatherForecastResponse.data.list;
-        console.log('forecasts:', forecasts);
+        
+        const filteredForecasts = forecasts.filter((forecast, index) => index % (intervalHours / 3) === 0);
 
-        const messages = formatForecastMessages(forecasts, intervalHours);
+        const groupedForecasts = filteredForecasts.reduce((acc, forecast) => {
+            const date = new Date(forecast.dt_txt);
+            const day = date.getDate();
+            const month = date.toLocaleString('default', { month: 'long' });
+            const formattedDate = `${day} ${month}`;
+            const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            const temperature = forecast.main.temp;
+            const weatherDescription = forecast.weather[0].description;
+            const feelsLike = forecast.main.feels_like;
+            const forecastMessage = `   ${time}: ${temperature}°C, feels like: ${feelsLike} ${weatherDescription}`;
+            
+            if (!acc[formattedDate]) {
+                acc[formattedDate] = [];
+            }
+            acc[formattedDate].push(forecastMessage);
+            return acc;
+        }, {});
 
-        messages.forEach((message) => {
-            bot.sendMessage(chatId, message);
-        });
+        const message = Object.keys(groupedForecasts).map(date => {
+            return `${date}:\n${groupedForecasts[date].join('\n')}`;
+        }).join('\n\n');
+
+        bot.sendMessage(chatId, message);
 
     } catch (error) {
         console.error('Error fetching weather forecast:', error);
-        bot.sendMessage(chatId, 'Failed to fetch weather forecast. Please try again later.');
+        bot.sendMessage(chatId, 'Failed to fetch weather forecast. Please make sure you have set a city and try again.');
     }
 });
 
-function formatForecastMessages(forecasts, intervalHours) {
-    const messages = [];
-    let currentMessage = '';
-    let currentDate = '';
 
-    forecasts.forEach((forecast, index) => {
-        const forecastDate = forecast.dt_txt.split(' ')[0];
-        const forecastTime = forecast.dt_txt.split(' ')[1].slice(0, 5);
-        const forecastTemperature = forecast.main.temp;
-        const forecastFeelsLike = forecast.main.feels_like;
-        const forecastWeatherDescription = forecast.weather[0].description;
-
-        if (forecastDate !== currentDate) {
-            if (currentMessage) { 
-                messages.push(`${currentDate}:\n${currentMessage}`); 
-            }
-            currentDate = forecastDate; 
-            currentMessage = '';
-        }
-
-        if (index % (intervalHours / 3) === 0) {
-            currentMessage += ` ${forecastTime}, ${forecastTemperature}°C, Feels like: ${forecastFeelsLike}°C, ${forecastWeatherDescription}\n`;
-        }
-    });
-
-    if (currentMessage) {
-        messages.push(`${currentDate}:\n${currentMessage}`);
-    }
-
-    return messages;
-}
