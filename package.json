@@ -5,8 +5,12 @@
     "axios": "^1.7.2",
     "bot-brother": "^2.1.5",
     "commander": "^12.1.0",
-    "inquirer": "^9.3.2",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.1",
+    "inquirer": "^9.3.4",
+    "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2",
-    "node-telegram-bot-api": "^0.66.0"
+    "node-telegram-bot-api": "^0.66.0",
+    "tinyurl": "^1.1.7"
   }
 }
